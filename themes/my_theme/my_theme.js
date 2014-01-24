@@ -36,7 +36,8 @@ function my_theme_info() {
   // Footer region.
   theme.regions['footer'] = {
     attributes: {
-      'data-role': 'footer'
+      'data-role': 'footer',
+      'data-position': 'fixed'
     }
   };
   
