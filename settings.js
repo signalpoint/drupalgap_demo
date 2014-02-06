@@ -1,3 +1,5 @@
+window.localStorage.clear();
+
 /* Specify DrupalGap Mobile Application Settings Here */
 
 /****************************************|
@@ -45,7 +47,7 @@ drupalgap.settings.title = 'DrupalGap';
 drupalgap.settings.front = 'dashboard';
 
 // Theme
-drupalgap.settings.theme = 'my_theme';
+drupalgap.settings.theme = 'easystreet3';
 
 // Logo
 drupalgap.settings.logo = 'themes/easystreet3/images/drupalgap.jpg';
@@ -79,7 +81,7 @@ drupalgap.settings.loader = {
 
 /** Custom Modules - www/app/modules/custom **/
 
-//Drupal.modules.custom['my_module'] = {};
+Drupal.modules.custom['demo'] = {};
 
 /***************************************|
  * Menus - http://drupalgap.org/node/85 |
@@ -172,29 +174,12 @@ drupalgap.settings.menus['main_menu'] = {
  ****************************************/
 drupalgap.settings.blocks = {}; // Do not remove this line.
 
-// The my_theme blocks.
-drupalgap.settings.blocks.my_theme = {
+// Easy Street 3 Theme Blocks
+drupalgap.settings.blocks.easystreet3 = {
   header: {
     title: {}
   },
   navigation: {
-    main_menu: {}
-  },
-  content: {
-    main: {}
-  },
-  footer: {
-    powered_by: {}
-  }
-};
-
-
-// Easy Street 3 Theme Blocks
-drupalgap.settings.blocks.easystreet3 = {
-  header:{
-    title:{}
-  },
-  navigation:{
     user_menu_anonymous:{
       roles:{
         value:['anonymous user'],
@@ -206,22 +191,14 @@ drupalgap.settings.blocks.easystreet3 = {
         value:['authenticated user'],
         mode:'include',
       }
-    }
-  },
-  sub_navigation:{
-    main_menu:{
-      roles:{
-        value:['administrator'],
-        mode:'include',
-      }
     },
-    primary_local_tasks:{},
+    main_menu: {}
   },
-  content:{
-    main:{}
+  content: {
+    main: {}
   },
-  footer:{
-    powered_by:{}
+  footer: {
+    powered_by: {}
   }
 };
 
