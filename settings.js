@@ -96,7 +96,7 @@ drupalgap.settings.loader = {
 
 /** Custom Modules - www/app/modules/custom **/
 
-//Drupal.modules.custom['my_module'] = {};
+Drupal.modules.custom['demo'] = {};
 
 /***************************************|
  * Menus - http://drupalgap.org/node/85 |
