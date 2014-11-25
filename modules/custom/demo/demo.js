@@ -1,11 +1,13 @@
 /**
  * Implements hook_install().
  */
-/*function demo_install() {
+function demo_install() {
   try {
+    var css = drupalgap_get_path('module', 'demo') + '/demo.css';
+    drupalgap_add_css(css);
   }
   catch (error) { console.log('demo_install - ' + error); }
-}*/
+}
 
 /**
  * Implements hook_form_alter().

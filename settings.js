@@ -115,7 +115,7 @@ drupalgap.settings.menus['user_menu_anonymous'] = {
           'data-icon': 'lock'
         }
       }
-    },
+    }/*,
     {
       title: 'Create new account',
       path: 'user/register',
@@ -124,7 +124,7 @@ drupalgap.settings.menus['user_menu_anonymous'] = {
           'data-icon': 'plus'
         }
       }
-    }
+    }*/
   ]
 };
 
