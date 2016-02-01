@@ -125,21 +125,27 @@ function demo_block_view_alter(element, block) {
 
     // Add a link to the main menu.
     case 'main_menu':
-      element.menu._items.push(
-          dg.l('Map', 'map')
-      );
-      break;
-
-    // Make the powered by block's text red and add a custom class to it.
-    case 'powered_by':
-      element.list._attributes.style = 'color: red;';
-      element.list._attributes['class'].push('foo');
+      //element.menu._items.push(
+      //    dg.l('Map', 'map')
+      //);
       break;
 
   }
 
 }
 
+/**
+ * Implements hook_form_alter().
+ */
+function demo_form_alter(form, form_state, form_id) {
+  return new Promise(function(ok, err) {
+    if (form_id == 'UserLoginForm') {
+      form.name._value = 'demo';
+      form.pass._value = 'drupalgap2012';
+    }
+    ok();
+  });
+}
 
 /**
  * The map page controller.
