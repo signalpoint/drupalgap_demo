@@ -50,17 +50,13 @@ dg.settings.blocks[dg.config('theme').name] = {
     title: { },
 
     // DrupalGap's "main" content block.
-    main: { }
+    main: { },
+
+    // The demo app's css framework switcher.
+    switch_css_framework: { }
 
   },
   footer: {
-
-    // DrupalGap's administration menu block.
-    admin_menu: {
-      roles: [
-        { target_id: 'administrator', visible: true }
-      ]
-    },
 
     // The powered by DrupalGap block.
     powered_by: { }
