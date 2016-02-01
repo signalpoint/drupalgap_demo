@@ -24,6 +24,13 @@ demo.routing = function() {
             _title: 'Switch CSS Framework',
             _items: [{
               _theme: 'link',
+              _text: 'Out of the box',
+              _path: linkPrefix,
+              _attributes: {
+                'class': [dg.config('theme').name == 'ava' ? 'active' : '']
+              }
+            },{
+              _theme: 'link',
               _text: 'Bootstrap',
               _path: linkPrefix + '/bootstrap',
               _attributes: {
@@ -35,13 +42,6 @@ demo.routing = function() {
               _path: linkPrefix + '/foundation',
               _attributes: {
                 'class': [dg.config('theme').name == 'frank' ? 'active' : '']
-              }
-            }, {
-              _theme: 'link',
-              _text: 'Out of the box',
-              _path: linkPrefix,
-              _attributes: {
-                'class': [dg.config('theme').name == 'ava' ? 'active' : '']
               }
             }]
           };
