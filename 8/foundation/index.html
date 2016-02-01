@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>DrupalGap</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <!-- jDrupal and DrupalGap-->
+    <script type="text/javascript" charset="utf-8" src="jdrupal.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="drupalgap.min.js"></script>
+    <link rel="stylesheet" href="css/dg.css" />
+
+    <!-- App Settings (load the base app's config and our own) -->
+    <script type="text/javascript" charset="utf-8" src="../settings.js"></script>
+    <script type="text/javascript" charset="utf-8" src="settings.js"></script>
+
+    <!-- DrupalGap Modules -->
+    <script src="modules/contrib/foundation/foundation.js"></script>
+    <script src="modules/custom/demo/demo.js"></script>
+    <link rel="stylesheet" href="modules/custom/demo/demo.css" />
+
+    <!-- DrupalGap Theme -->
+    <script src="themes/frank/frank.js"></script>
+
+    <!-- Foundation CSS -->
+    <link rel="stylesheet" href="css/foundation.css" />
+
+  </head>
+  <body>
+
+    <!-- The DrupalGap Spinner/Loading Icon -->
+    <div id="dgSpinner" style="display: none;"></div>
+
+    <!-- The DrupalGap App Container -->
+    <div id="dg-app"></div>
+
+    <!-- Start DrupalGap -->
+    <script type="text/javascript">drupalgap.start();</script>
+
+  </body>
+</html>
