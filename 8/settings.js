@@ -41,7 +41,10 @@ dg.settings.blocks[dg.config('theme').name] = {
   header: {
 
     // DrupalGap's main menu block.
-    main_menu: { }
+    main_menu: { },
+
+    // The demo app's css framework switcher.
+    switch_css_framework: { }
 
   },
   content: {
@@ -50,10 +53,7 @@ dg.settings.blocks[dg.config('theme').name] = {
     title: { },
 
     // DrupalGap's "main" content block.
-    main: { },
-
-    // The demo app's css framework switcher.
-    switch_css_framework: { }
+    main: { }
 
   },
   footer: {
