@@ -1,10 +1,18 @@
 var demo = new dg.Module(); // Create the module.
 dg.modules.demo = demo; // Attach it to DrupalGap.
 
+/**
+ * GLOBALS
+ */
+
 // Create global variables to hold coordinates and the map.
 demo.userLatitude = null;
 demo.userLongitude = null;
 demo.map = null;
+
+/**
+ * ROUTES
+ */
 
 /**
  * Provides page routes to DrupalGap.
@@ -19,9 +27,12 @@ demo.routing = function() {
     "defaults": {
       "_title": "DrupalGap 8 Demo",
       "_controller": function() {
-
         return new Promise(function(ok, err) {
 
+          // Grab the current user.
+          var account = dg.currentUser();
+
+          // Let's build a render element to render on the page...
           var element = {};
 
           // Show info about CSS Framework(s).
@@ -37,30 +48,88 @@ demo.routing = function() {
               msg = 'Instantly switch to a Foundation front end, with a module for DrupalGap 8.';
               break;
           }
-          element.css = {
-            _markup: '<blockquote>' + msg + '</blockquote>'
+          element.css = { _markup: '<blockquote>' + msg + '</blockquote>' };
+
+          // Add to map link.
+          if (account.isAuthenticated()) {
+            element['add_article'] = {
+              _theme: 'link',
+              _text: 'Say hello on the map',
+              _path: 'node/add/article'
+            }
+          }
+          else {
+            element['add_article'] = {
+              _theme: 'link',
+              _text: 'Login to say hello on the map',
+              _path: 'user/login'
+            }
+          }
+
+          // Google map.
+          element['map'] = {
+            _markup: '<div ' + dg.attributes({ id: 'demo-map' }) + '></div>',
+            _postRender: [demo_map_post_render]
+          };
+
+          element['article_list'] = {
+            _theme: 'view',
+            _path: 'articles', // Path to the View in Drupal
+            _format: 'ul',
+            _row_callback: function(row) {
+              var node = dg.Node(row);
+              return dg.l(node.getTitle(), 'node/' + node.id());
+            }
           };
 
           // Send the element back to be rendered on the page.
           ok(element);
 
         });
-
       }
-    }
-  };
-
-  // My example page route.
-  routes["demo.map"] = {
-    "path": "/map",
-    "defaults": {
-      "_title": "Map",
-      "_controller": demo_map
     }
   };
 
   return routes;
 };
+
+/**
+ * FORMS
+ */
+
+/**
+ * The form for switching between the different css framework demos.
+ * @constructor
+ */
+var DemoSwitchForm = function() {
+
+  this.buildForm = function(form, formState) {
+    return new Promise(function(ok, err) {
+      form.css_frameworks = {
+        _type: 'select',
+        _title: 'Switch CSS Framework',
+        _options: {
+          out_of_the_box: dg.t('Out of the box'),
+          bootstrap: dg.t('Bootstrap'),
+          foundation: dg.t('Foundation')
+        },
+        _value: demo.currentFramework(),
+        _attributes: {
+          onchange: "demo.switchFramework(this)"
+        }
+      };
+      ok(form);
+    });
+  };
+
+};
+// Extend the DrupalGap form prototype and attach our form's constructor.
+DemoSwitchForm.prototype = new dg.Form('DemoSwitchForm');
+DemoSwitchForm.constructor = DemoSwitchForm;
+
+/**
+ * BLOCKS
+ */
 
 /**
  * Defines blocks for demo.
@@ -71,46 +140,20 @@ demo.blocks = function() {
   blocks['switch_css_framework'] = {
     build: function () {
       return new Promise(function(ok, err) {
-        var element = {};
 
-        // Make some links to switch between the different themes.
-        var url = window.location.toString();
-        var linkPrefix = url.indexOf('localhost') != -1 ?
-            'http://localhost/drupalgap.web/demo/8' : 'http://demo.drupalgap.org/8';
-        element.themes = {
-          _theme: 'item_list',
-          _title: 'Switch CSS Framework',
-          _items: [{
-            _theme: 'link',
-            _text: 'Out of the box',
-            _path: linkPrefix,
-            _attributes: {
-              'class': [dg.config('theme').name == 'ava' ? 'active' : '']
-            }
-          },{
-            _theme: 'link',
-            _text: 'Bootstrap',
-            _path: linkPrefix + '/bootstrap',
-            _attributes: {
-              'class': [dg.config('theme').name == 'burrito' ? 'active' : '']
-            }
-          }, {
-            _theme: 'link',
-            _text: 'Foundation',
-            _path: linkPrefix + '/foundation',
-            _attributes: {
-              'class': [dg.config('theme').name == 'frank' ? 'active' : '']
-            }
-          }]
-        };
+        // Load the form, add it to DrupalGap, render it and then return it.
+        dg.addForm('DemoSwitchForm', dg.applyToConstructor(DemoSwitchForm)).getForm().then(ok);
 
-        ok(element);
       });
     }
   };
 
   return blocks;
 };
+
+/**
+ * HOOKS
+ */
 
 /**
  * Implements hook_block_view_alter().
@@ -148,24 +191,56 @@ function demo_form_alter(form, form_state, form_id) {
 }
 
 /**
- * The map page controller.
+ * HELPERS
  */
-function demo_map() {
-  return new Promise(function(ok, err) {
 
-    var content = {};
-    var map_attributes = {
-      id: 'my-module-map',
-      style: 'width: 100%; height: 320px;'
-    };
-    content['map'] = {
-      _markup: '<div ' + dg.attributes(map_attributes) + '></div>',
-      _postRender: [demo_map_post_render]
-    };
-    ok(content);
+/**
+ * Returns the current css framework.
+ * @returns {String}
+ */
+demo.currentFramework = function() {
+  var select = document.getElementById('edit-css-frameworks');
+  if (select) { return select.value; }
+  switch (dg.config('theme').name) {
+    case 'ava': return 'out_of_the_box'; break;
+    case 'burrito': return 'bootstrap'; break;
+    case 'frank': return 'foundation'; break;
+  }
+};
 
-  });
-}
+/**
+ * Handles the switching of the app's CSS framework.
+ */
+demo.switchFramework = function(select) {
+  var current = window.location.toString();
+  switch (select.value) {
+    case 'out_of_the_box':
+      if (current.indexOf('foundation') != -1) {
+        current = current.replace('foundation/', '');
+      }
+      else if (current.indexOf('bootstrap') != -1) {
+        current = current.replace('bootstrap/', '');
+      }
+      break;
+    case 'bootstrap':
+      if (current.indexOf('foundation') != -1) {
+        current = current.replace('foundation', 'bootstrap');
+      }
+      else {
+        current = current.replace('8/', '8/bootstrap');
+      }
+      break;
+    case 'foundation':
+      if (current.indexOf('bootstrap') != -1) {
+        current = current.replace('bootstrap', 'foundation');
+      }
+      else {
+        current = current.replace('8/', '8/foundation');
+      }
+      break;
+  }
+  window.location = current;
+};
 
 /**
  * The map post render.
@@ -199,12 +274,13 @@ function demo_map_post_render() {
           zoomControl: true,
           zoomControlOptions: {
             style: google.maps.ZoomControlStyle.SMALL
-          }
+          },
+          scrollwheel: false
         };
 
         // Initialize the map, and set a timeout to resize properly.
         demo.map = new google.maps.Map(
-            document.getElementById("my-module-map"),
+            document.getElementById("demo-map"),
             mapOptions
         );
         setTimeout(function() {
