@@ -1,0 +1,8 @@
+#!/bin/bash
+
+scp index.html favicon.ico drupalga@drupalgap.org:~/www/demo/
+scp 8/index.html 8/settings.js drupalga@drupalgap.org:~/www/demo/8/
+scp 8/bootstrap/index.html 8/bootstrap/settings.js  drupalga@drupalgap.org:~/www/demo/8/bootstrap/
+scp 8/foundation/index.html 8/foundation/settings.js  drupalga@drupalgap.org:~/www/demo/8/foundation/
+scp -r 8/modules/custom/demo drupalga@drupalgap.org:~/www/demo/8/modules/custom
+ssh drupalga@drupalgap.org 'bash -s' < scripts/remote_pull

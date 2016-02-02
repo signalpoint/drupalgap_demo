@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd ~/www/demo/8
+git pull origin 8.x-1.x
+cd ~/www/demo/8/modules/contrib/bootstrap
+git pull origin 8.x-1.x
+cd ~/www/demo/8/modules/contrib/foundation
+git pull origin 8.x-1.x
