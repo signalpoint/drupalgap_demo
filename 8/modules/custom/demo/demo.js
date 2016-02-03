@@ -36,54 +36,69 @@ demo.routing = function() {
           var element = {};
 
           // Show info about CSS Framework(s).
-          var msg = '';
-          switch (dg.config('theme').name) {
-            case 'ava': // The core, out of the box theme.
-                msg = 'Welcome to the DrupalGap out of the box demo.';
-              break;
-            case 'burrito': // The core theme for Bootstrap.
-              msg = 'With a module for DrupalGap 8, instantly switch to a Bootstrap front end.';
-              break;
-            case 'frank': // The core theme for Foundation.
-              msg = 'Instantly switch to a Foundation front end, with a module for DrupalGap 8.';
-              break;
-          }
-          element.css = { _markup: '<blockquote>' + msg + '</blockquote>' };
-
-          // Add to map link.
-          if (account.isAuthenticated()) {
-            element['add_article'] = {
-              _theme: 'link',
-              _text: 'Say hello on the map',
-              _path: 'node/add/article'
-            }
-          }
-          else {
-            element['add_article'] = {
-              _theme: 'link',
-              _text: 'Login to say hello on the map',
-              _path: 'user/login'
-            }
-          }
+          //var msg = '';
+          //switch (dg.config('theme').name) {
+          //  case 'ava': // The core, out of the box theme.
+          //    msg = 'Welcome to the DrupalGap out of the box demo.';
+          //    break;
+          //  case 'burrito': // The core theme for Bootstrap.
+          //    msg = 'With a module for DrupalGap 8, instantly switch to a Bootstrap front end.';
+          //    break;
+          //  case 'frank': // The core theme for Foundation.
+          //    msg = 'Instantly switch to a Foundation front end, with a module for DrupalGap 8.';
+          //    break;
+          //}
+          //element.css = { _markup: '<blockquote>' + msg + '</blockquote>' };
 
           // Google map.
           element['map'] = {
             _markup: '<div ' + dg.attributes({ id: 'demo-map' }) + '></div>',
-            _postRender: [demo_map_post_render]
+            _postRender: [demo_map_post_render],
+            _weight: 1
           };
 
           element['article_list'] = {
             _theme: 'view',
+            _title: 'Recent greetings',
             _path: 'articles', // Path to the View in Drupal
             _format: 'ul',
             _row_callback: function(row) {
               var node = dg.Node(row);
               return dg.l(node.getTitle(), 'node/' + node.id());
-            }
+            },
+            _weight: 3
           };
 
-          // Send the element back to be rendered on the page.
-          ok(element);
+          // Anonymous users...
+          if (!account.isAuthenticated()) {
+
+
+            element['add_article'] = {
+              _theme: 'link',
+              _text: 'Add a drop to the map',
+              _path: 'user/login'
+            };
+
+            // Send the element back to be rendered on the page.
+            ok(element);
+
+          }
+
+          else {
+
+            // Authenticated users...
+
+            // Load the form, add it to DrupalGap, then attach its html to our render element, then send the element
+            // back to be rendered on the page.
+            dg.addForm('DemoSayHelloForm', dg.applyToConstructor(DemoSayHelloForm)).getForm().then(function(formHTML) {
+              element['say_hello_form'] = {
+                _markup: formHTML,
+                _weight: 2
+              };
+              ok(element);
+            });
+
+          }
 
         });
       }
@@ -126,6 +141,65 @@ var DemoSwitchForm = function() {
 // Extend the DrupalGap form prototype and attach our form's constructor.
 DemoSwitchForm.prototype = new dg.Form('DemoSwitchForm');
 DemoSwitchForm.constructor = DemoSwitchForm;
+
+/**
+ * My form's constructor.
+ */
+var DemoSayHelloForm = function() {
+
+  this.buildForm = function(form, formState) {
+    return new Promise(function(ok, err) {
+      form._prefix = '<h3>' + dg.t('Add a drop to the map') + '</h3>' +
+          dg.l('Use current location', null, { _attributes: { onclick: 'demo.getCurrentLocation()' } });
+      form.name = {
+        _type: 'textfield',
+        _title: 'Name',
+        _required: true,
+        _title_placeholder: true
+      };
+      form.message = {
+        _type: 'textarea',
+        _title: 'Message',
+        _required: true,
+        _title_placeholder: true
+      };
+
+      form.latitude = {
+        _type: 'hidden',
+        _title: 'Latitude',
+        _required: true,
+        _title_placeholder: true
+      };
+      form.longitude = {
+        _type: 'hidden',
+        _title: 'Longitude',
+        _required: true,
+        _title_placeholder: true
+      };
+      form.actions = {
+        _type: 'actions',
+        submit: {
+          _type: 'submit',
+          _value: 'Save drop',
+          _button_type: 'primary'
+        }
+      };
+      ok(form);
+    });
+  };
+
+  this.submitForm = function(form, formState) {
+    return new Promise(function(ok, err) {
+      var msg = 'Hello ' + formState.getValue('name');
+      dg.alert(msg);
+      ok();
+    });
+  };
+
+};
+// Extend the DrupalGap form prototype and attach my form's constructor.
+DemoSayHelloForm.prototype = new dg.Form('DemoSayHelloForm');
+DemoSayHelloForm.constructor = DemoSayHelloForm;
 
 /**
  * BLOCKS
@@ -246,16 +320,66 @@ demo.switchFramework = function(select) {
  * The map post render.
  */
 function demo_map_post_render() {
+
+  // Set the map's default options.
+  var mapOptions = {
+    //center: new google.maps.LatLng(42.292826, -83.734731), // The Tech Brewery in Ann Arbor, MI - USA
+    center: new google.maps.LatLng(0, 0),
+    zoom: 2,
+    mapTypeControl: true,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+    },
+    zoomControl: true,
+    zoomControlOptions: {
+      style: google.maps.ZoomControlStyle.SMALL
+    },
+    scrollwheel: false
+  };
+
+  // Initialize the map, set its click listener for markers, and set a timeout to resize properly.
+  demo.markersArray = [];
+  demo.map = new google.maps.Map(
+      document.getElementById("demo-map"),
+      mapOptions
+  );
+  google.maps.event.addListener(demo.map, 'click', function (event) {
+    demo.clearMarkers();
+    demo.setCoordinateInputs(event.latLng.lat(), event.latLng.lng());
+    var marker = new google.maps.Marker({
+      position: event.latLng,
+      map: demo.map
+    });
+    demo.markersArray.push(marker);
+  });
+  setTimeout(function() {
+    google.maps.event.trigger(demo.map, 'resize');
+  }, 500);
+
+}
+
+demo.clearMarkers = function() {
+  for (var i = 0; i < demo.markersArray.length; i++ ) {
+    demo.markersArray[i].setMap(null);
+  }
+  demo.markersArray.length = 0;
+};
+
+demo.setCoordinateInputs = function(lat, lng) {
+  document.getElementById('edit-latitude').value = lat;
+  document.getElementById('edit-longitude').value = lng;
+};
+
+demo.getCurrentLocation = function() {
   navigator.geolocation.getCurrentPosition(
 
       // Success.
       function(position) {
 
-        console.log(position);
-
-        // Set aside the user's position.
+        // Set aside the user's position and place it in the hidden form inputs.
         demo.userLatitude = position.coords.latitude;
         demo.userLongitude = position.coords.longitude;
+        demo.setCoordinateInputs(demo.userLatitude, demo.userLongitude);
 
         // Build the lat lng object from the user's position.
         var myLatlng = new google.maps.LatLng(
@@ -263,37 +387,16 @@ function demo_map_post_render() {
             demo.userLongitude
         );
 
-        // Set the map's options.
-        var mapOptions = {
-          center: myLatlng,
-          zoom: 11,
-          mapTypeControl: true,
-          mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-          },
-          zoomControl: true,
-          zoomControlOptions: {
-            style: google.maps.ZoomControlStyle.SMALL
-          },
-          scrollwheel: false
-        };
-
-        // Initialize the map, and set a timeout to resize properly.
-        demo.map = new google.maps.Map(
-            document.getElementById("demo-map"),
-            mapOptions
-        );
-        setTimeout(function() {
-          google.maps.event.trigger(demo.map, 'resize');
-          demo.map.setCenter(myLatlng);
-        }, 500);
-
-        // Add a marker for the user's current position.
+        // Add a marker for the user's current position, pan to it and zoom in.
+        demo.clearMarkers();
         var marker = new google.maps.Marker({
           position: myLatlng,
           map: demo.map,
           icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
         });
+        demo.markersArray.push(marker);
+        demo.map.panTo(myLatlng);
+        demo.map.setZoom(11);
 
       },
 
@@ -327,4 +430,4 @@ function demo_map_post_render() {
       { enableHighAccuracy: true }
 
   );
-}
+};
