@@ -356,7 +356,7 @@ function demo_map_post_render() {
   var mapOptions = {
     //center: new google.maps.LatLng(42.292826, -83.734731), // The Tech Brewery in Ann Arbor, MI - USA
     center: new google.maps.LatLng(0, 0),
-    zoom: 2,
+    zoom: 3,
     mapTypeControl: true,
     mapTypeControlOptions: {
       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
