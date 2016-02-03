@@ -36,7 +36,7 @@ dg.settings.files = {
 // Blocks.
 dg.settings.blocks = {};
 
-// Blocks for the "ava" theme.
+// Blocks for the active theme.
 dg.settings.blocks[dg.config('theme').name] = {
   header: {
 
