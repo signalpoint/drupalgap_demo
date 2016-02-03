@@ -35,21 +35,6 @@ demo.routing = function() {
           // Let's build a render element to render on the page...
           var element = {};
 
-          // Show info about CSS Framework(s).
-          //var msg = '';
-          //switch (dg.config('theme').name) {
-          //  case 'ava': // The core, out of the box theme.
-          //    msg = 'Welcome to the DrupalGap out of the box demo.';
-          //    break;
-          //  case 'burrito': // The core theme for Bootstrap.
-          //    msg = 'With a module for DrupalGap 8, instantly switch to a Bootstrap front end.';
-          //    break;
-          //  case 'frank': // The core theme for Foundation.
-          //    msg = 'Instantly switch to a Foundation front end, with a module for DrupalGap 8.';
-          //    break;
-          //}
-          //element.css = { _markup: '<blockquote>' + msg + '</blockquote>' };
-
           // Google map.
           element['map'] = {
             _markup: '<div ' + dg.attributes({ id: 'demo-map' }) + '></div>',
@@ -57,29 +42,26 @@ demo.routing = function() {
             _weight: 1
           };
 
-          element['article_list'] = {
-            _theme: 'view',
-            _title: 'Recent greetings',
-            _path: 'articles', // Path to the View in Drupal
-            _format: 'ul',
-            _row_callback: function(row) {
-              var node = dg.Node(row);
-              return dg.l(node.getTitle(), 'node/' + node.id());
-            },
-            _weight: 3
+          // Add a placeholder for showing messages.
+          element['message'] = {
+            _markup: '<div id="demo-message"></div>',
+            _weight: 2
           };
+
+          // Display a View listing of recent greetings.
+          element['article_list'] = dg.recentGreetings();
 
           // Anonymous users...
           if (!account.isAuthenticated()) {
 
-
-            element['add_article'] = {
-              _theme: 'link',
-              _text: 'Add a drop to the map',
-              _path: 'user/login'
-            };
-
-            // Send the element back to be rendered on the page.
+            // Direct them to the login form so they can use the map.
+            element['message']._postRender = [function() {
+              var nid = window.localStorage.getItem('demo_message_sent');
+              demo.setMessage({
+                _theme: 'message',
+                _message: dg.l(dg.t('Add a greeting to the map'), 'user/login')
+              });
+            }];
             ok(element);
 
           }
@@ -88,8 +70,37 @@ demo.routing = function() {
 
             // Authenticated users...
 
-            // Load the form, add it to DrupalGap, then attach its html to our render element, then send the element
-            // back to be rendered on the page.
+            // If they've already sent a message, let them know and don't show the form.
+            if (window.localStorage.getItem('demo_message_sent')) {
+              element['message']._postRender = [function() {
+                var nid = window.localStorage.getItem('demo_message_sent');
+                demo.setMessage({
+                  _theme: 'message',
+                  _type: 'warning',
+                  _message: dg.t('You already sent a message!') + ' (' + dg.l(dg.t('view message'), 'node/' + nid) + ')'
+                });
+              }];
+              ok(element);
+              return;
+            }
+
+            // Show a message informing the user how to use the map and form.
+            element['message']._postRender = [function() {
+              demo.setMessage({
+                _theme: 'message',
+                _type: 'info',
+                _message:
+                dg.t('Click on the map and enter your message below...') + ' ' +
+                dg.l(dg.t('or use your current location'), null, {
+                  _attributes: {
+                    href: '',
+                    onclick: 'demo.getCurrentLocation(); return false;'
+                  }
+                })
+              });
+            }];
+
+            // Load the form, add it to DrupalGap, then attach its html to our render element.
             dg.addForm('DemoSayHelloForm', dg.applyToConstructor(DemoSayHelloForm)).getForm().then(function(formHTML) {
               element['say_hello_form'] = {
                 _markup: formHTML,
@@ -149,8 +160,8 @@ var DemoSayHelloForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
-      form._prefix = '<h3>' + dg.t('Add a drop to the map') + '</h3>' +
-          dg.l('Use current location', null, { _attributes: { onclick: 'demo.getCurrentLocation()' } });
+
+      // Add the other form elements.
       form.name = {
         _type: 'textfield',
         _title: 'Name',
@@ -163,7 +174,6 @@ var DemoSayHelloForm = function() {
         _required: true,
         _title_placeholder: true
       };
-
       form.latitude = {
         _type: 'hidden',
         _title: 'Latitude',
@@ -180,19 +190,40 @@ var DemoSayHelloForm = function() {
         _type: 'actions',
         submit: {
           _type: 'submit',
-          _value: 'Save drop',
+          _value: 'Send message',
           _button_type: 'primary'
         }
       };
+
       ok(form);
+
     });
   };
 
   this.submitForm = function(form, formState) {
     return new Promise(function(ok, err) {
-      var msg = 'Hello ' + formState.getValue('name');
-      dg.alert(msg);
-      ok();
+
+      // Save a new article node to Drupal, hide the form, display an informative message, and refresh the recent
+      // greetings listing.
+      var node = new dg.Node({
+        type: [ { target_id: 'article' } ],
+        title: [ { value: formState.getValue('name') } ],
+        body:[ { value: formState.getValue('message') } ],
+        field_latitude:[ { value: formState.getValue('latitude') } ],
+        field_longitude:[ { value: formState.getValue('longitude') } ]
+      });
+      node.save().then(function() {
+        window.localStorage.setItem('demo_message_sent', node.id());
+        document.getElementById('demo-say-hello-form').style.display = "none";
+        demo.setMessage({
+          _theme: 'message',
+          _type: 'status',
+          _message: dg.t('Message sent!')
+        });
+        document.getElementById('recent-greetings').innerHTML = dg.render(dg.recentGreetings());
+        ok();
+      });
+
     });
   };
 
@@ -358,6 +389,39 @@ function demo_map_post_render() {
 
 }
 
+/**
+ * Returns a render element for displaying recent greetings.
+ */
+dg.recentGreetings = function() {
+  return {
+    _theme: 'view',
+    _title: 'Recent greetings',
+    _path: 'articles', // Path to the View in Drupal
+    _format: 'div',
+    _attributes: {
+      id: 'recent-greetings'
+    },
+    _row_callback: function(row) {
+      var node = dg.Node(row);
+      var d = new Date(node.getCreatedTime() * 1000);
+      return '<h4>' + dg.l(node.getTitle(), 'node/' + node.id()) + ' | ' + d.toDateString() + '</h4>' +
+          '<blockquote>' + node.get('body', 0).value + '</blockquote>';
+    },
+    _weight: 3
+  };
+};
+
+/**
+ * Given a render element, this will render it in the message div container.
+ * @param element
+ */
+demo.setMessage = function(element) {
+  document.getElementById('demo-message').innerHTML = dg.render(element);
+};
+
+/**
+ * Removes all markers from the map.
+ */
 demo.clearMarkers = function() {
   for (var i = 0; i < demo.markersArray.length; i++ ) {
     demo.markersArray[i].setMap(null);
@@ -365,11 +429,19 @@ demo.clearMarkers = function() {
   demo.markersArray.length = 0;
 };
 
+/**
+ * Given a latitude and longitude, this will set them into the hidden input fields.
+ * @param lat
+ * @param lng
+ */
 demo.setCoordinateInputs = function(lat, lng) {
   document.getElementById('edit-latitude').value = lat;
   document.getElementById('edit-longitude').value = lng;
 };
 
+/**
+ * Tries to get the user's current location and update the map.
+ */
 demo.getCurrentLocation = function() {
   navigator.geolocation.getCurrentPosition(
 
