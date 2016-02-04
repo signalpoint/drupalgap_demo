@@ -127,7 +127,7 @@ var DemoSwitchForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
-      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava') {
+      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava' && dg.isFrontPage()) {
         form._prefix = dg.theme('message', {
           _type: 'error',
           _message: dg.t('Hmmm, this looks very boring...')
