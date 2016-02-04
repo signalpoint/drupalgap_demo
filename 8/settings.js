@@ -43,6 +43,9 @@ dg.settings.blocks[dg.config('theme').name] = {
     // DrupalGap's main menu block.
     main_menu: { },
 
+    // The user login form provided by DrupalGap.
+    user_login: { },
+
     // The demo app's css framework switcher.
     switch_css_framework: { }
 
