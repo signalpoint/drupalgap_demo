@@ -18,7 +18,7 @@ jDrupal.settings.sitePath = window.location.toString().indexOf('localhost') == -
 dg.settings = {
   front: 'welcome', // The front page
   mode: 'web-app', // The app mode, web-app or phonegap
-  title: 'DrupalGap'
+  title: 'DrupalGap 8 Demo'
 };
 
 // The active theme.
