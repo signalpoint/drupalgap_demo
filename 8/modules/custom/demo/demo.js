@@ -127,7 +127,9 @@ var DemoSwitchForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
-      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava' && dg.isFrontPage()) {
+
+      // Show some informative messages to encourage users to try the css framework switcher.
+      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava' && (dg.getPath() == 'welcome' || dg.getPath() == '')) {
         form._prefix = dg.theme('message', {
           _type: 'error',
           _message: dg.t('Hmmm, this looks very boring...')
@@ -139,6 +141,8 @@ var DemoSwitchForm = function() {
           _message:  dg.t('which lets app developers pick their own additional tools, while DrupalGap handles integration with Drupal.')
         }) + '<p>' + dg.t("Try a <em>theme + module</em> extension for DrupalGap:") + '</p>';
       }
+
+      // The framework switcher select list.
       form.css_frameworks = {
         _type: 'select',
         _title: 'Switch CSS Framework',
@@ -152,6 +156,8 @@ var DemoSwitchForm = function() {
           onchange: "demo.switchFramework(this)"
         }
       };
+
+      // Send the form back to be rendered.
       ok(form);
     });
   };
