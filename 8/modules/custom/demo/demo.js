@@ -138,8 +138,10 @@ var DemoSwitchForm = function() {
           _message: dg.t('that is because the DrupalGap SDK is totally headless...')
         }) + dg.theme('message', {
           _type: 'status',
-          _message:  dg.t('which lets app developers pick their own additional tools, while DrupalGap handles integration with Drupal.')
-        }) + '<p>' + dg.t("Try a <em>theme + module</em> extension for DrupalGap:") + '</p>';
+          _message:  dg.t('which lets app developers pick their own additional tools.')
+        }) +
+            '<p>' + dg.t('DrupalGap handles integration with Drupal, and comes with many features for app developers.') + '</p>' +
+            '<p>' + dg.t("Try a <em>theme + module</em> extension for DrupalGap:") + '</p>';
       }
 
       // The framework switcher select list.
