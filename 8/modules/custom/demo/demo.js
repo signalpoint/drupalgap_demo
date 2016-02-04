@@ -25,7 +25,7 @@ demo.routing = function() {
   routes["demo.welcome"] = {
     "path": "/welcome",
     "defaults": {
-      "_title": "DrupalGap 8 Demo",
+      "_title": "Greetings Map",
       "_controller": function() {
         return new Promise(function(ok, err) {
 
@@ -36,11 +36,7 @@ demo.routing = function() {
           var element = {};
 
           // Google map.
-          element['map'] = {
-            _markup: '<div ' + dg.attributes({ id: 'demo-map' }) + '></div>',
-            _postRender: [demo_map_post_render],
-            _weight: 1
-          };
+          element['map'] = demo.getMapRenderElement();
 
           // Add a placeholder for showing messages.
           element['message'] = {
@@ -59,7 +55,7 @@ demo.routing = function() {
               var nid = window.localStorage.getItem('demo_message_sent');
               demo.setMessage({
                 _theme: 'message',
-                _message: dg.l(dg.t('Add a greeting to the map'), 'user/login')
+                _message: dg.t('Login to add a greeting to the map.')
               });
             }];
             ok(element);
@@ -131,6 +127,18 @@ var DemoSwitchForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
+      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava') {
+        form._prefix = dg.theme('message', {
+          _type: 'error',
+          _message: dg.t('Hmmm, this looks very boring...')
+        }) + dg.theme('message', {
+          _type: 'warning',
+          _message: dg.t('that is because the DrupalGap SDK is totally headless...')
+        }) + dg.theme('message', {
+          _type: 'status',
+          _message:  dg.t('which lets app developers pick their own additional tools, while DrupalGap handles integration with Drupal.')
+        }) + '<p>' + dg.t("Try a <em>theme + module</em> extension for DrupalGap:") + '</p>';
+      }
       form.css_frameworks = {
         _type: 'select',
         _title: 'Switch CSS Framework',
@@ -296,6 +304,35 @@ function demo_form_alter(form, form_state, form_id) {
 }
 
 /**
+ * Implements hook_entity_view().
+ * @param {Object} element
+ * @param {Entity} entity
+ */
+function demo_entity_view(element, entity) {
+
+  // Add a google map to article nodes, and show a marker at the latitude and longitude stored in the node.
+  if (entity.getEntityType() == 'node' && entity.getBundle() == 'article') {
+
+    element['map'] = demo.getMapRenderElement();
+    element['map']._postRender.push(function() {
+
+      var articleLatlng = new google.maps.LatLng(
+          entity.get('field_latitude', 0).value,
+          entity.get('field_longitude', 0).value
+      );
+      var marker = new google.maps.Marker({
+        position: articleLatlng,
+        map: demo.map,
+        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+      });
+      demo.map.panTo(articleLatlng);
+      demo.map.setZoom(7);
+
+    });
+  }
+}
+
+/**
  * HELPERS
  */
 
@@ -348,46 +385,53 @@ demo.switchFramework = function(select) {
 };
 
 /**
- * The map post render.
+ * Returns a render element used to display the Google Map.
+ * @returns {Object}
  */
-function demo_map_post_render() {
+demo.getMapRenderElement = function() {
+  return {
+    _markup: '<div ' + dg.attributes({ id: 'demo-map' }) + '></div>',
+    _postRender: [function() {
 
-  // Set the map's default options.
-  var mapOptions = {
-    //center: new google.maps.LatLng(42.292826, -83.734731), // The Tech Brewery in Ann Arbor, MI - USA
-    center: new google.maps.LatLng(0, 0),
-    zoom: 3,
-    mapTypeControl: true,
-    mapTypeControlOptions: {
-      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-    },
-    zoomControl: true,
-    zoomControlOptions: {
-      style: google.maps.ZoomControlStyle.SMALL
-    },
-    scrollwheel: false
-  };
+      // Set the map's default options.
+      var mapOptions = {
+        //center: new google.maps.LatLng(42.292826, -83.734731), // The Tech Brewery in Ann Arbor, MI - USA
+        center: new google.maps.LatLng(0, 0),
+        zoom: 3,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        },
+        zoomControl: true,
+        zoomControlOptions: {
+          style: google.maps.ZoomControlStyle.SMALL
+        },
+        scrollwheel: false
+      };
 
-  // Initialize the map, set its click listener for markers, and set a timeout to resize properly.
-  demo.markersArray = [];
-  demo.map = new google.maps.Map(
-      document.getElementById("demo-map"),
-      mapOptions
-  );
-  google.maps.event.addListener(demo.map, 'click', function (event) {
-    demo.clearMarkers();
-    demo.setCoordinateInputs(event.latLng.lat(), event.latLng.lng());
-    var marker = new google.maps.Marker({
-      position: event.latLng,
-      map: demo.map
-    });
-    demo.markersArray.push(marker);
-  });
-  setTimeout(function() {
-    google.maps.event.trigger(demo.map, 'resize');
-  }, 500);
+      // Initialize the map, set its click listener for markers, and set a timeout to resize properly.
+      demo.markersArray = [];
+      demo.map = new google.maps.Map(
+          document.getElementById("demo-map"),
+          mapOptions
+      );
+      google.maps.event.addListener(demo.map, 'click', function (event) {
+        demo.clearMarkers();
+        demo.setCoordinateInputs(event.latLng.lat(), event.latLng.lng());
+        var marker = new google.maps.Marker({
+          position: event.latLng,
+          map: demo.map
+        });
+        demo.markersArray.push(marker);
+      });
+      setTimeout(function() {
+        google.maps.event.trigger(demo.map, 'resize');
+      }, 500);
 
-}
+    }],
+    _weight: 1
+  }
+};
 
 /**
  * Returns a render element for displaying recent greetings.
