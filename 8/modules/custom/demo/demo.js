@@ -493,19 +493,25 @@ function demo_entity_view(element, entity) {
 
     var account = dg.currentUser();
 
-    // Add a node edit link for authenticated users.
+    // Add a node edit link for authenticated users, style it appropriately for the css framework.
     if (account.isAuthenticated()) {
+      var containerAttrs = { };
+      var editAttrs = {};
+      if (demo.isBootstrap()) {
+        containerAttrs = { 'class': ['text-right'] };
+        editAttrs = { 'class': ['btn', 'btn-sm', 'btn-success'] };
+      }
+      else if (demo.isFoundation()) {
+        containerAttrs = { 'class': ['float-right'] };
+        editAttrs = { 'class': ['button', 'success'] };
+      }
       element['controls'] = {
         _theme: 'container',
-        _attributes: {
-          'class': ['text-right']
-        },
+        _attributes: containerAttrs,
         _children: {
           _edit: {
             _markup: dg.l(dg.t('Edit'), 'node/' + entity.id() + '/edit', {
-              _attributes: {
-                'class': ['btn', 'btn-sm', 'btn-success']
-              }
+              _attributes: editAttrs
             })
           }
         }
@@ -527,6 +533,7 @@ function demo_entity_view(element, entity) {
       demo.map.panTo(articleLatlng);
       demo.map.setZoom(7);
     });
+
   }
 
   // Display "member since" info on user profiles until DrupalGap core provides it.
@@ -763,4 +770,6 @@ demo.getCurrentLocation = function() {
  * Returns true if the app is in the out of the box mode, aka running the "ava" theme, false otherwise.
  * @returns {boolean}
  */
-demo.outOfTheBox = function() { return dg.config('theme').name == 'ava' };
+demo.outOfTheBox = function() { return dg.config('theme').name == 'ava'; };
+demo.isBootstrap = function() { return dg.config('theme').name == 'burrito'; };
+demo.isFoundation = function() { return dg.config('theme').name == 'frank'; };
