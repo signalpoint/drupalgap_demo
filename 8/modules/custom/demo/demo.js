@@ -52,6 +52,30 @@ demo.routing = function() {
 };
 
 /**
+ * BLOCKS
+ */
+
+/**
+ * Defines blocks for demo.
+ */
+demo.blocks = function() {
+  var blocks = {};
+
+  blocks['switch_css_framework'] = {
+    build: function () {
+      return new Promise(function(ok, err) {
+
+        // Load the form, add it to DrupalGap, render it and then return it.
+        dg.addForm('DemoSwitchForm', dg.applyToConstructor(DemoSwitchForm)).getForm().then(ok);
+
+      });
+    }
+  };
+
+  return blocks;
+};
+
+/**
  * PAGES
  */
 
@@ -73,8 +97,8 @@ demo.welcomePage = function() {
             _theme: 'item_list',
             _type: 'ol',
             _items: [
-              dg.t('Acknowledge the demo looks boring'),
-              dg.t('Realize DrupalGap is a headless, empty canvas for app developers'),
+              dg.t('Agree this demo looks boring'),
+              dg.t('Acknowledge DrupalGap is a headless, empty canvas for app developers'),
               dg.t('Get "out of the box" to explore the tool set and extensions')
             ]
           };
@@ -405,32 +429,22 @@ DemoSayHelloForm.prototype = new dg.Form('DemoSayHelloForm');
 DemoSayHelloForm.constructor = DemoSayHelloForm;
 
 /**
- * BLOCKS
- */
-
-/**
- * Defines blocks for demo.
- */
-demo.blocks = function() {
-  var blocks = {};
-
-  blocks['switch_css_framework'] = {
-    build: function () {
-      return new Promise(function(ok, err) {
-
-        // Load the form, add it to DrupalGap, render it and then return it.
-        dg.addForm('DemoSwitchForm', dg.applyToConstructor(DemoSwitchForm)).getForm().then(ok);
-
-      });
-    }
-  };
-
-  return blocks;
-};
-
-/**
  * HOOKS
  */
+
+/**
+ * Implements hook_form_alter().
+ */
+function demo_form_alter(form, form_state, form_id) {
+  return new Promise(function(ok, err) {
+    if (form.actions) { form.actions._weight = 999; }
+    if (form_id == 'UserLoginForm') {
+      form.name._value = 'demo';
+      form.pass._value = 'drupalgap2012';
+    }
+    ok();
+  });
+}
 
 /**
  * Implements hook_block_view_alter().
@@ -468,31 +482,39 @@ function demo_block_view_alter(element, block) {
 }
 
 /**
- * Implements hook_form_alter().
- */
-function demo_form_alter(form, form_state, form_id) {
-  return new Promise(function(ok, err) {
-    if (form_id == 'UserLoginForm') {
-      form.name._value = 'demo';
-      form.pass._value = 'drupalgap2012';
-    }
-    ok();
-  });
-}
-
-/**
  * Implements hook_entity_view().
  * @param {Object} element
  * @param {Entity} entity
  */
 function demo_entity_view(element, entity) {
 
-  // Add a google map to article nodes, and show a marker at the latitude and longitude stored in the node.
+  // On article nodes...
   if (entity.getEntityType() == 'node' && entity.getBundle() == 'article') {
 
+    var account = dg.currentUser();
+
+    // Add a node edit link for authenticated users.
+    if (account.isAuthenticated()) {
+      element['controls'] = {
+        _theme: 'container',
+        _attributes: {
+          'class': ['text-right']
+        },
+        _children: {
+          _edit: {
+            _markup: dg.l(dg.t('Edit'), 'node/' + entity.id() + '/edit', {
+              _attributes: {
+                'class': ['btn', 'btn-sm', 'btn-success']
+              }
+            })
+          }
+        }
+      };
+    }
+
+    // Add a google map to article nodes, and show a marker at the latitude and longitude stored in the node.
     element['map'] = demo.getMapRenderElement();
     element['map']._postRender.push(function() {
-
       var articleLatlng = new google.maps.LatLng(
           entity.get('field_latitude', 0).value,
           entity.get('field_longitude', 0).value
@@ -504,7 +526,6 @@ function demo_entity_view(element, entity) {
       });
       demo.map.panTo(articleLatlng);
       demo.map.setZoom(7);
-
     });
   }
 
