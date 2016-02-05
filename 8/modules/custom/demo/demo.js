@@ -21,11 +21,129 @@ demo.map = null;
 demo.routing = function() {
   var routes = {};
 
-  // My example page route.
+  /**
+   * THE WELCOME PAGE
+   */
+
+  // The demo welcome page.
   routes["demo.welcome"] = {
     "path": "/welcome",
     "defaults": {
-      "_title": "Greetings Map",
+      "_title": "Welcome",
+      "_controller": function() {
+        return new Promise(function(ok, err) {
+
+          // Grab the current user.
+          var account = dg.currentUser();
+
+          // Let's build a render element to render on the page...
+          var element = { };
+
+          switch (dg.config('theme').name) {
+
+            // "Out of the box" theme.
+            case 'ava':
+                if (account.isAnonymous()) {
+                  element.intro = {
+                    _theme: 'item_list',
+                    _type: 'ol',
+                    _items: [
+                      dg.t('Acknowledge how boring this looks'),
+                      dg.t('Realize DrupalGap is an empty canvas for app developers'),
+                      dg.t('Get "out of the box" to explore the tool set and extensions')
+                    ]
+                  };
+                }
+                else {
+                  var msg = dg.t('To support other CSS Frameworks (or no framework at all), the DrupalGap front end is very flexible.');
+                  element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
+                }
+
+              break;
+
+            // Core theme for Bootstrap.
+            case 'burrito':
+              var msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension for DrupalGap.', {
+                _bootstrap: dg.l(dg.t('Bootstrap'), 'http://getbootstrap.com/'),
+                _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/bootstrap')
+              });
+              element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
+              break;
+
+            // Core theme for Foundation.
+            case 'frank':
+              var msg = dg.t('Instantly add a _foundation front end to your app with a _module extension for DrupalGap.', {
+                _foundation: dg.l(dg.t('Foundation'), 'http://foundation.zurb.com/'),
+                _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/foundation')
+              });
+              element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
+              break;
+
+          }
+
+          // List out some of DrupalGap's best features and how to get started.
+          if (dg.config('theme').name != 'ava' || account.isAuthenticated()) {
+
+            element.features = {
+              _markup:
+              
+                '<h2>' + dg.t('Tools and Features') + '</h2>' +
+                '<blockquote>' + dg.t('By utilizing familiar coding syntax and concepts from Drupal 8 such as...') + '</blockquote>' +
+                dg.theme('item_list', {
+                  _items: [
+                    dg.t('Entities / Fields'),
+                    dg.t('Modules'),
+                    dg.t('Hooks'),
+                    dg.t('Themes'),
+                    dg.t('Regions'),
+                    dg.t('Blocks'),
+                    dg.t('Templates'),
+                    dg.t('Routes / Custom Pages'),
+                    dg.t('Forms API'),
+                    dg.t('User Roles / Permissions')
+                  ]
+                }) +
+              '<blockquote>' + dg.t('with built in pages, widgets and forms to handle...') + '</blockquote>' +
+              dg.theme('item_list', {
+                _items: [
+                  dg.t('User Authentication'),
+                  dg.t('Adding / Editing Entities'),
+                  dg.t('Displaying Entities / Fields'),
+                  dg.t('Rendering Views Result Data')
+                ]
+              }) +
+              '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>' +
+
+              '<h2>' + dg.t('Continuing the Demo') + '</h2>' +
+              '<blockquote>' + dg.t('Be sure to say hello on the _map and browse the _messages list to continue the demo.', {
+                  _map: dg.l(dg.t('map'), 'map'),
+                  _messages: dg.l(dg.t('messages'), 'messages')
+                }) + '</blockquote>' +
+
+              '<h2>' + dg.t('Getting Started') + '</h2>' +
+              '<blockquote>' + dg.t('Try the _helloWorld World for DrupalGap.', {
+                _helloWorld: dg.l(dg.t('Hello World'), 'http://docs.drupalgap.org/8/Hello_World')
+              }) + '</blockquote>'
+            };
+
+          }
+
+          ok(element);
+
+        });
+      }
+    }
+  };
+
+  /**
+   * THE MAP PAGE
+   */
+
+  // My map page route.
+  routes["demo.map"] = {
+    "path": "/map",
+    "defaults": {
+      "_title": "Map",
       "_controller": function() {
         return new Promise(function(ok, err) {
 
@@ -43,9 +161,6 @@ demo.routing = function() {
             _markup: '<div id="demo-message"></div>',
             _weight: 2
           };
-
-          // Display a View listing of recent greetings.
-          element['article_list'] = dg.recentGreetings();
 
           // Anonymous users...
           if (!account.isAuthenticated()) {
@@ -112,6 +227,45 @@ demo.routing = function() {
     }
   };
 
+  /**
+   * THE MESSAGES PAGE
+   */
+
+  // My messages page route.
+  routes["demo.messages"] = {
+    "path": "/messages",
+    "defaults": {
+      "_title": "Messages",
+      "_controller": function() {
+        return new Promise(function(ok, err) {
+
+          // Grab the current user.
+          var account = dg.currentUser();
+
+          // Let's build a render element to render on the page...
+          var element = {};
+
+          // Display a View listing of recent greetings.
+          element['article_list'] = dg.recentGreetings();
+
+          // Anonymous users...
+          if (!account.isAuthenticated()) {
+
+          }
+
+          else {
+
+            // Authenticated users...
+
+          }
+
+          ok(element);
+
+        });
+      }
+    }
+  };
+
   return routes;
 };
 
@@ -127,22 +281,6 @@ var DemoSwitchForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
-
-      // Show some informative messages to encourage users to try the css framework switcher.
-      if (dg.currentUser().isAnonymous() && dg.config('theme').name == 'ava' && (dg.getPath() == 'welcome' || dg.getPath() == '')) {
-        form._prefix = dg.theme('message', {
-          _type: 'error',
-          _message: dg.t('Hmmm, this looks very boring...')
-        }) + dg.theme('message', {
-          _type: 'warning',
-          _message: dg.t('that is because the DrupalGap SDK is totally headless...')
-        }) + dg.theme('message', {
-          _type: 'status',
-          _message:  dg.t('which lets app developers pick their own additional tools.')
-        }) +
-            '<p>' + dg.t('DrupalGap handles integration with Drupal, and comes with many features for app developers.') + '</p>' +
-            '<p>' + dg.t("Try a <em>theme + module</em> extension for DrupalGap:") + '</p>';
-      }
 
       // The framework switcher select list.
       form.css_frameworks = {
@@ -289,9 +427,10 @@ function demo_block_view_alter(element, block) {
 
     // Add a link to the main menu.
     case 'main_menu':
-      //element.menu._items.push(
-      //    dg.l('Map', 'map')
-      //);
+      element.menu._items.push(
+          dg.l(dg.t('Map'), 'map'),
+          dg.l(dg.t('Messages'), 'messages')
+      );
       break;
 
   }
@@ -338,6 +477,20 @@ function demo_entity_view(element, entity) {
 
     });
   }
+
+  // Display "member since" info on user profiles until DrupalGap core provides it.
+  else if (entity.getEntityType() == 'user' ) {
+    var created = new Date(entity.get('created', 0).value * 1000);
+    element['member_for'] = {
+      _theme: 'container',
+      _children: {
+        date: {
+          _markup: '<h4>' + dg.t('Member since') + '</h4>' + created.toDateString()
+        }
+      }
+    };
+  }
+
 }
 
 /**
@@ -393,7 +546,7 @@ demo.switchFramework = function(select) {
 };
 
 /**
- * Returns a render element used to display the Google Map.
+ * Returns a render element used to display a Google Map.
  * @returns {Object}
  */
 demo.getMapRenderElement = function() {
@@ -442,12 +595,11 @@ demo.getMapRenderElement = function() {
 };
 
 /**
- * Returns a render element for displaying recent greetings.
+ * Returns a View render element for displaying recent greetings.
  */
 dg.recentGreetings = function() {
   return {
     _theme: 'view',
-    _title: 'Recent greetings',
     _path: 'articles', // Path to the View in Drupal
     _format: 'div',
     _attributes: {
