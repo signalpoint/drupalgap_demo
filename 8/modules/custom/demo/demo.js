@@ -86,7 +86,7 @@ demo.routing = function() {
 
             element.features = {
               _markup:
-              
+
                 '<h2>' + dg.t('Tools and Features') + '</h2>' +
                 '<blockquote>' + dg.t('By utilizing familiar coding syntax and concepts from Drupal 8 such as...') + '</blockquote>' +
                 dg.theme('item_list', {
@@ -115,7 +115,7 @@ demo.routing = function() {
               '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>' +
 
               '<h2>' + dg.t('Continuing the Demo') + '</h2>' +
-              '<blockquote>' + dg.t('Be sure to say hello on the _map and browse the _messages list to continue the demo.', {
+              '<blockquote>' + dg.t('Be sure to say hello on the _map and browse the _messages list.', {
                   _map: dg.l(dg.t('map'), 'map'),
                   _messages: dg.l(dg.t('messages'), 'messages')
                 }) + '</blockquote>' +
@@ -154,7 +154,34 @@ demo.routing = function() {
           var element = {};
 
           // Google map.
-          element['map'] = demo.getMapRenderElement();
+          element.map = demo.getMapRenderElement();
+          element.map._postRender.push(function() {
+
+            // Add clickable markers on the map for recent messages sent.
+            jDrupal.viewsLoad('articles').then(function(view) {
+              var results = view.getResults();
+              for (var i = 0; i < results.length; i ++) {
+                var node = new jDrupal.Node(results[i]);
+                var marker = new google.maps.Marker({
+                  position: new google.maps.LatLng(
+                    node.get('field_latitude', 0).value,
+                    node.get('field_longitude', 0).value
+                  ),
+                  map: demo.map,
+                  icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                });
+                var content = dg.l(node.getTitle(), 'node/' + node.id());
+                var infowindow = new google.maps.InfoWindow();
+                google.maps.event.addListener(marker, 'click', (function(marker, content, infowindow) {
+                  return function() {
+                    infowindow.setContent(content);
+                    infowindow.open(demo.map, marker);
+                  };
+                })(marker, content, infowindow));
+              }
+            });
+
+          });
 
           // Add a placeholder for showing messages.
           element['message'] = {
