@@ -61,6 +61,13 @@ dg.settings.blocks[dg.config('theme').name] = {
   },
   footer: {
 
+    // The demo app's resource links.
+    resources: {
+      _roles: [
+        { target_id: 'authenticated', visible: true }
+      ]
+    },
+
     // The powered by DrupalGap block.
     powered_by: { }
 

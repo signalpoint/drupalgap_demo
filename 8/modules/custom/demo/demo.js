@@ -72,6 +72,26 @@ demo.blocks = function() {
     }
   };
 
+  blocks['resources'] = {
+    build: function () {
+      return new Promise(function(ok, err) {
+
+        // Provide some helpful links.
+        ok({
+          links: {
+            _theme: 'item_list',
+            _title: dg.t('Getting Started'),
+            _items: [
+                dg.l(dg.t('See the code'), 'https://github.com/signalpoint/drupalgap_demo'),
+                dg.l(dg.t('Hello World'), 'http://docs.drupalgap.org/8/Hello_World'),
+            ]
+          }
+        });
+
+      });
+    }
+  };
+
   return blocks;
 };
 
@@ -167,11 +187,6 @@ demo.welcomePage = function() {
         '<blockquote>' + dg.t('Be sure to say hello on the _map and browse the _messages list.', {
           _map: dg.l(dg.t('map'), 'map'),
           _messages: dg.l(dg.t('messages'), 'messages')
-        }) + '</blockquote>' +
-
-        '<h2>' + dg.t('Getting Started') + '</h2>' +
-        '<blockquote>' + dg.t('Try the _helloWorld World for DrupalGap.', {
-          _helloWorld: dg.l(dg.t('Hello World'), 'http://docs.drupalgap.org/8/Hello_World')
         }) + '</blockquote>'
       };
 
@@ -447,6 +462,16 @@ function demo_form_alter(form, form_state, form_id) {
 }
 
 /**
+ * Implements hook_regions_build_alter().
+ */
+function demo_blocks_build_alter(blocks) {
+  // Add a css class to the resources block container.
+  if (blocks.resources) {
+    blocks.resources._attributes['class'].push('columns');
+  }
+}
+
+/**
  * Implements hook_block_view_alter().
  */
 function demo_block_view_alter(element, block) {
@@ -475,6 +500,11 @@ function demo_block_view_alter(element, block) {
             dg.l(dg.t('Messages'), 'messages')
         );
 
+      break;
+
+    // Add a css class to the resources block link's item list.
+    case 'resources':
+      element.links._attributes['class'].push('menu');
       break;
 
   }
