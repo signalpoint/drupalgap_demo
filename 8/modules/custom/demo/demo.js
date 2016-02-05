@@ -157,9 +157,10 @@ demo.routing = function() {
           element.map = demo.getMapRenderElement();
           element.map._postRender.push(function() {
 
-            // Add clickable markers on the map for recent messages sent.
+            // Add clickable markers on the map for recent messages sent, then set the center of the map.
             jDrupal.viewsLoad('articles').then(function(view) {
               var results = view.getResults();
+              var markers = [];
               for (var i = 0; i < results.length; i ++) {
                 var node = new jDrupal.Node(results[i]);
                 var marker = new google.maps.Marker({
@@ -170,6 +171,7 @@ demo.routing = function() {
                   map: demo.map,
                   icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                 });
+                markers.push(marker);
                 var content = dg.l(node.getTitle(), 'node/' + node.id());
                 var infowindow = new google.maps.InfoWindow();
                 google.maps.event.addListener(marker, 'click', (function(marker, content, infowindow) {
@@ -179,6 +181,9 @@ demo.routing = function() {
                   };
                 })(marker, content, infowindow));
               }
+              var bounds = new google.maps.LatLngBounds();
+              for (var i = 0; i < markers.length; i++) { bounds.extend(markers[i].getPosition()); }
+              demo.map.fitBounds(bounds);
             });
 
           });
