@@ -118,7 +118,7 @@ demo.welcomePage = function() {
             _type: 'ol',
             _items: [
               dg.t('Agree this demo looks boring'),
-              dg.t('Acknowledge DrupalGap is a headless, empty canvas for app developers'),
+              dg.t('Know that DrupalGap is a headless, empty canvas for app developers'),
               dg.t('Get "out of the box" to explore the tool set and extensions')
             ]
           };
