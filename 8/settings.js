@@ -10,15 +10,23 @@ jDrupal.settings = {
 
 };
 
-// Set the demo Drupal 8 site path dynamically.
+// Set the demo site path for production and development environments.
 jDrupal.settings.sitePath = window.location.toString().indexOf('localhost') == -1 ?
   'http://demo.drupalgap.org/8/drupal' : 'http://localhost/drupalgap.web/8';
 
-// DrupalGap Settings.
-dg.settings = {
-  front: 'welcome', // The front page
-  mode: 'web-app', // The app mode, web-app or phonegap
-  title: 'DrupalGap 8 Demo'
+// App mode.
+dg.settings.mode = 'web-app'; // web-app or phonegap
+
+// App title.
+dg.settings.title = 'DrupalGap 8 Demo';
+
+// App front page.
+dg.settings.front = 'welcome';
+
+// App logo.
+dg.settings.logo = {
+  _theme: 'image',
+  _path: 'modules/custom/demo/images/drupalgap-wide.jpg'
 };
 
 // The active theme.
@@ -40,14 +48,26 @@ dg.settings.blocks = {};
 dg.settings.blocks[dg.config('theme').name] = {
   header: {
 
-    // DrupalGap's main menu block.
-    main_menu: { },
-
-    // The user login form provided by DrupalGap.
-    user_login: { },
+    // DrupalGap's logo block.
+    logo: {
+      _access: function () { return !demo.headerBlockAccess(); }
+    },
 
     // The demo app's css framework switcher.
-    switch_css_framework: { }
+    switch_css_framework: {
+      _access: function () { return demo.headerBlockAccess(); }
+    },
+
+    // DrupalGap's main menu block.
+    main_menu: {
+      _access: function () { return demo.headerBlockAccess(); }
+    },
+
+    // The user login form's block provided by DrupalGap.
+    user_login: {
+      _access: function () { return demo.headerBlockAccess(); }
+    }
+
 
   },
   content: {
@@ -61,15 +81,10 @@ dg.settings.blocks[dg.config('theme').name] = {
   },
   footer: {
 
-    // The demo app's resource links.
-    resources: {
-      _roles: [
-        { target_id: 'authenticated', visible: true }
-      ]
-    },
-
     // The powered by DrupalGap block.
-    powered_by: { }
+    powered_by: {
+      _access: function () { return demo.headerBlockAccess(); }
+    }
 
   }
 };
