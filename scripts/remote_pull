@@ -8,3 +8,9 @@ cd ~/www/demo/8/modules/contrib/bootstrap
 git pull origin 8.x-1.x
 cd ~/www/demo/8/modules/contrib/foundation
 git pull origin 8.x-1.x
+cd ~/www/demo/8/drupal/modules/jdrupal
+git pull origin 8.x-1.x
+cd ~/www/demo/8/drupal/modules/drupalgap
+git pull origin 8.x-1.x
+# @TODO need a drush updb here
+
