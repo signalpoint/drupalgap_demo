@@ -241,7 +241,9 @@ demo.mapPage = function() {
         }
         var bounds = new google.maps.LatLngBounds();
         for (var i = 0; i < markers.length; i++) { bounds.extend(markers[i].getPosition()); }
-        demo.map.fitBounds(bounds);
+        window.setTimeout(function() {
+          demo.map.fitBounds(bounds);
+        }, 100);
       });
 
     });
