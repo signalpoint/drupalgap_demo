@@ -22,6 +22,7 @@
 
     <!-- DrupalGap Modules -->
     <script src="modules/contrib/foundation/foundation.js"></script>
+    <script src="modules/contrib/google_analytics/google_analytics.js"></script>
     <script src="modules/custom/demo/demo.js"></script>
     <link rel="stylesheet" href="modules/custom/demo/demo.css" />
 
@@ -54,7 +55,7 @@
           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-        ga('create', 'UA-36188740-6', 'auto');
+        ga('create', dg.config('google_analytics').id, 'auto');
         ga('send', 'pageview');
       }
     </script>
