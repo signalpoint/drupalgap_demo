@@ -88,3 +88,7 @@ dg.settings.blocks[dg.config('theme').name] = {
 
   }
 };
+
+dg.settings.google_analytics = {
+  id: 'UA-36188740-6'
+};
