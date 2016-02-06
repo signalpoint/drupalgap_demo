@@ -30,6 +30,15 @@ demo.routing = function() {
     }
   };
 
+  // Home page route.
+  routes["demo.tour"] = {
+    "path": "/tour",
+    "defaults": {
+      "_title": "Tour",
+      "_controller": demo.tourPage
+    }
+  };
+
   // Map page route.
   routes["demo.map"] = {
     "path": "/map",
@@ -65,27 +74,19 @@ demo.blocks = function() {
     build: function () {
       return new Promise(function(ok, err) {
 
-        // Load the form, add it to DrupalGap, render it and then return it.
-        dg.addForm('DemoSwitchForm', dg.applyToConstructor(DemoSwitchForm)).getForm().then(ok);
-
-      });
-    }
-  };
-
-  blocks['resources'] = {
-    build: function () {
-      return new Promise(function(ok, err) {
-
-        // Provide some helpful links.
-        ok({
-          links: {
-            _theme: 'item_list',
-            _title: dg.t('Getting Started'),
-            _items: [
-                dg.l(dg.t('See the code'), 'https://github.com/signalpoint/drupalgap_demo'),
-                dg.l(dg.t('Hello World'), 'http://docs.drupalgap.org/8/Hello_World'),
-            ]
+        // Load the form, add it to DrupalGap, render it and then return it. If they haven't yet switched the css
+        // framework, draw attention to it.
+        dg.addForm('DemoSwitchForm', dg.applyToConstructor(DemoSwitchForm)).getForm().then(function(formHtml) {
+          var element = {};
+          if (!demo.cssFrameworkSwitched() && demo.outOfTheBox()) {
+            element.msg = {
+              _theme: 'message',
+              _type: 'warning',
+              _message: dg.t('Hey, try switching the mode!')
+            };
           }
+          element.form = { _markup: formHtml };
+          ok(element);
         });
 
       });
@@ -108,51 +109,62 @@ demo.welcomePage = function() {
     // Let's build a render element to render on the page...
     var element = { };
 
-    switch (dg.config('theme').name) {
+    if (demo.outOfTheBoxAndAnonymous() && !demo.cssFrameworkSwitched()) {
+      element.intro = {
+        _theme: 'item_list',
+        _type: 'ol',
+        _items: [
+          dg.t('Agree this demo looks boring'),
+          dg.t('Know that DrupalGap 8 is an empty canvas for developers'),
+          dg.l('Get ready')
+        ]
+      };
+      element.expectations = {
+        _theme: 'item_list',
+        _title: {
+          _markup: '<h3>' + dg.t('What to expect') + '</h3><p>' + dg.t('A simple headless Drupal 8 web application...') + '</p>'
+        },
+        _items: [
+          dg.t("to add a message to a map"),
+          dg.t('to browse other messages'),
+          dg.t('with a surprise or two')
+        ],
+        _suffix: dg.l(dg.t('Continue the demo'), 'map')
+      };
+    }
+    else {
+      element.intro = demo.showcase();
+      element.start = {
+        _theme: 'item_list',
+        _title: dg.t('Getting Started'),
+        _items: [
+          dg.l(dg.t('Hello world'), 'http://docs.drupalgap.org/8/Hello_World'),
+          dg.l(dg.t("See the demo's source code"), 'https://github.com/signalpoint/drupalgap_demo/tree/8.x-1.x/8'),
 
-      // "Out of the box" theme.
-      case 'ava':
-        if (account.isAnonymous()) {
-          element.intro = {
-            _theme: 'item_list',
-            _type: 'ol',
-            _items: [
-              dg.t('Agree this demo looks boring'),
-              dg.t('Know that DrupalGap is a headless, empty canvas for app developers'),
-              dg.t('Get "out of the box" to explore the tool set and extensions')
-            ]
-          };
-        }
-        else {
-          var msg = dg.t('To support other CSS Frameworks (or no framework at all), the DrupalGap front end is very flexible.');
-          element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
-        }
-
-        break;
-
-      // Core theme for Bootstrap.
-      case 'burrito':
-        var msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension for DrupalGap.', {
-          _bootstrap: dg.l(dg.t('Bootstrap'), 'http://getbootstrap.com/'),
-          _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/bootstrap')
-        });
-        element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
-        break;
-
-      // Core theme for Foundation.
-      case 'frank':
-        var msg = dg.t('Instantly add a _foundation front end to your app with a _module extension for DrupalGap.', {
-          _foundation: dg.l(dg.t('Foundation'), 'http://foundation.zurb.com/'),
-          _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/foundation')
-        });
-        element.intro = { _markup: '<blockquote>' + msg + '</blockquote>' };
-        break;
-
+        ]
+      };
     }
 
-    // List out some of DrupalGap's best features and how to get started.
-    if (dg.config('theme').name != 'ava' || account.isAuthenticated()) {
+    ok(element);
 
+  });
+};
+
+
+
+demo.tourPage = function() {
+  return new Promise(function(ok, err) {
+
+    // Grab the current user.
+    var account = dg.currentUser();
+
+    // Let's build a render element to render on the page...
+    var element = { };
+
+    element.intro = demo.showcase();
+
+    // List out some of DrupalGap's best features and how to get started.
+    //if (!demo.outOfTheBoxAndAnonymous()) {
       element.features = {
         _markup:
 
@@ -181,16 +193,9 @@ demo.welcomePage = function() {
             dg.t('Rendering Views Result Data')
           ]
         }) +
-        '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>' +
-
-        '<h2>' + dg.t('Continuing the Demo') + '</h2>' +
-        '<blockquote>' + dg.t('Be sure to say hello on the _map and browse the _messages list.', {
-          _map: dg.l(dg.t('map'), 'map'),
-          _messages: dg.l(dg.t('messages'), 'messages')
-        }) + '</blockquote>'
+        '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>'
       };
-
-    }
+    //}
 
     ok(element);
 
@@ -327,17 +332,17 @@ demo.messagesPage = function() {
 
 /**
  * The form for switching between the different css framework demos.
- * @constructor
  */
 var DemoSwitchForm = function() {
 
   this.buildForm = function(form, formState) {
     return new Promise(function(ok, err) {
 
+      if (demo.outOfTheBox) { form._attributes.class.push('out-of-the-box'); }
+
       // The framework switcher select list.
       form.css_frameworks = {
         _type: 'select',
-        _title: 'Switch CSS Framework',
         _options: {
           out_of_the_box: dg.t('Out of the box'),
           bootstrap: dg.t('Bootstrap'),
@@ -348,9 +353,10 @@ var DemoSwitchForm = function() {
           onchange: "demo.switchFramework(this)"
         }
       };
+      if (demo.outOfTheBox()) { form.css_frameworks._title = dg.t('Demo mode'); }
 
       // Add a css class when out of the box.
-      if (demo.outOfTheBox() && dg.currentUser().isAnonymous()) {
+      if (demo.outOfTheBox()) {
         form.css_frameworks._attributes.class = ['out-of-the-box'];
       }
 
@@ -485,26 +491,16 @@ function demo_block_view_alter(element, block) {
 
     case 'main_menu':
 
-        // Clear the main main for anonymous users, out of the box.
-        if (dg.config('theme').name == 'ava' && dg.currentUser().isAnonymous()) {
-          delete element.menu;
-          return;
-        }
+      // If it's bootstrap, we can drop the "Home" link (we actually clear the whole menu here, so careful).
+      if (dg.config('theme').name == 'burrito') { element.menu._items = []; }
 
-        // If it's bootstrap, we can drop the "Home" link (we actually clear it here, so careful).
-        if (dg.config('theme').name == 'burrito') { element.menu._items = []; }
+        // Build links for the app's main menu.
+      element.menu._items.push(
+        dg.l(dg.t('Map'), 'map'),
+        dg.l(dg.t('Messages'), 'messages'),
+        dg.l(dg.t('Tour'), 'tour')
+      );
 
-        // Add links to the main menu.
-        element.menu._items.push(
-            dg.l(dg.t('Map'), 'map'),
-            dg.l(dg.t('Messages'), 'messages')
-        );
-
-      break;
-
-    // Add a css class to the resources block link's item list.
-    case 'resources':
-      element.links._attributes['class'].push('menu');
       break;
 
   }
@@ -603,6 +599,7 @@ demo.currentFramework = function() {
  * Handles the switching of the app's CSS framework.
  */
 demo.switchFramework = function(select) {
+  window.localStorage.setItem('demo_css_framework_switched', 1);
   var current = window.location.toString();
   switch (select.value) {
     case 'out_of_the_box':
@@ -797,9 +794,37 @@ demo.getCurrentLocation = function() {
 };
 
 /**
- * Returns true if the app is in the out of the box mode, aka running the "ava" theme, false otherwise.
- * @returns {boolean}
+ * Returns true if the user has switched the css framework, false otherwise.
  */
+demo.cssFrameworkSwitched = function() { return window.localStorage.getItem('demo_css_framework_switched'); };
+
+demo.showcase = function() {
+  var msg = null;
+  switch (dg.config('theme').name) {
+    case 'burrito': // bootstrap
+      msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension for DrupalGap.', {
+        _bootstrap: dg.l(dg.t('Bootstrap'), 'http://getbootstrap.com/'),
+        _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/bootstrap')
+      });
+      break;
+    case 'frank': // foundation
+      msg = dg.t('Instantly add a _foundation front end to your app with a _module extension for DrupalGap.', {
+        _foundation: dg.l(dg.t('Foundation'), 'http://foundation.zurb.com/'),
+        _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/foundation')
+      });
+      break;
+    default: // out of the box
+      break;
+  }
+  if (msg) { return { _markup: '<blockquote>' + msg + '</blockquote>' }; }
+  return '';
+};
+
+demo.headerBlockAccess = function () {
+  return !(demo.outOfTheBox() && dg.currentUser().isAnonymous() && dg.isFrontPage() && !demo.cssFrameworkSwitched());
+};
+
 demo.outOfTheBox = function() { return dg.config('theme').name == 'ava'; };
 demo.isBootstrap = function() { return dg.config('theme').name == 'burrito'; };
 demo.isFoundation = function() { return dg.config('theme').name == 'frank'; };
+demo.outOfTheBoxAndAnonymous = function() { return demo.outOfTheBox() && dg.currentUser().isAnonymous(); };
