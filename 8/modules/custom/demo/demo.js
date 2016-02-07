@@ -333,7 +333,7 @@ var DemoSwitchForm = function() {
       form.css_frameworks = {
         _type: 'select',
         _options: {
-          out_of_the_box: dg.t('Out of the box'),
+          out_of_the_box: dg.t('Default (out of the box)'),
           bootstrap: dg.t('Bootstrap'),
           foundation: dg.t('Foundation')
         },
@@ -342,7 +342,7 @@ var DemoSwitchForm = function() {
           onchange: "demo.switchFramework(this)"
         }
       };
-      if (demo.outOfTheBox()) { form.css_frameworks._title = dg.t('Demo mode'); }
+      if (demo.outOfTheBox()) { form.css_frameworks._title = dg.t('Mode'); }
 
       // Add a css class when out of the box.
       if (demo.outOfTheBox()) {
@@ -450,16 +450,6 @@ function demo_form_alter(form, form_state, form_id) {
     }
     ok();
   });
-}
-
-/**
- * Implements hook_regions_build_alter().
- */
-function demo_blocks_build_alter(blocks) {
-  // Add a css class to the resources block container.
-  if (blocks.resources) {
-    blocks.resources._attributes['class'].push('columns');
-  }
 }
 
 /**
