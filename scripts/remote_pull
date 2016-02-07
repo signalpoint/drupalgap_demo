@@ -14,5 +14,6 @@ cd ~/www/demo/8/drupal/modules/jdrupal
 git pull origin 8.x-1.x
 cd ~/www/demo/8/drupal/modules/drupalgap
 git pull origin 8.x-1.x
-# @TODO need a drush updb here
-
+cd ~/www/demo/8/drupal
+drush cr
+# @TODO need a drush updb here?
