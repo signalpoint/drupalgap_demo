@@ -204,9 +204,10 @@ demo.mapPage = function() {
 
     // Google map.
     element.map = demo.getMapRenderElement();
+    element.map._weight = 3;
     element.map._postRender.push(function() {
 
-      // Add clickable markers on the map for recent messages sent, then set the center of the map.
+      // Add click-able markers on the map for recent messages sent, then set the center of the map.
       jDrupal.viewsLoad('articles').then(function(view) {
         var results = view.getResults();
         var markers = [];
@@ -242,7 +243,7 @@ demo.mapPage = function() {
     // Add a placeholder for showing messages.
     element['message'] = {
       _markup: '<div id="demo-message"></div>',
-      _weight: 2
+      _weight: 1
     };
 
     // Anonymous users...
@@ -277,22 +278,6 @@ demo.mapPage = function() {
         ok(element);
         return;
       }
-
-      // Show a message informing the user how to use the map and form.
-      element['message']._postRender = [function() {
-        demo.setMessage({
-          _theme: 'message',
-          _type: 'info',
-          _message:
-          dg.t('Click on the map and enter your message below...') + ' ' +
-          dg.l(dg.t('or use your current location'), null, {
-            _attributes: {
-              href: '',
-              onclick: 'demo.getCurrentLocation(); return false;'
-            }
-          })
-        });
-      }];
 
       // Load the form, add it to DrupalGap, then attach its html to our render element.
       dg.addForm('DemoSayHelloForm', dg.applyToConstructor(DemoSayHelloForm)).getForm().then(function(formHTML) {
@@ -396,9 +381,22 @@ var DemoSayHelloForm = function() {
         _type: 'actions',
         submit: {
           _type: 'submit',
-          _value: 'Send message',
+          _value: 'Add message',
           _button_type: 'primary'
         }
+      };
+
+      form._suffix = {
+        _theme: 'message',
+        _type: 'info',
+        _message: dg.t('Click on the map to set a position _geo.', {
+          _geo: dg.l(dg.t('or use your current location'), null, {
+            _attributes: {
+              href: '',
+              onclick: 'demo.getCurrentLocation(); return false;'
+            }
+          }
+        )})
       };
 
       ok(form);
