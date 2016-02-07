@@ -75,9 +75,22 @@ var DemoSayHelloForm = function() {
         _type: 'actions',
         submit: {
           _type: 'submit',
-          _value: 'Send message',
+          _value: 'Add message',
           _button_type: 'primary'
         }
+      };
+
+      form._suffix = {
+        _theme: 'message',
+        _type: 'info',
+        _message: dg.t('Click on the map to set a position _geo.', {
+          _geo: dg.l(dg.t('or use your current location'), null, {
+            _attributes: {
+              href: '',
+              onclick: 'demo.getCurrentLocation(); return false;'
+            }
+          }
+        )})
       };
 
       ok(form);
