@@ -13,16 +13,6 @@ function demo_form_alter(form, form_state, form_id) {
 }
 
 /**
- * Implements hook_regions_build_alter().
- */
-function demo_blocks_build_alter(blocks) {
-  // Add a css class to the resources block container.
-  if (blocks.resources) {
-    blocks.resources._attributes['class'].push('columns');
-  }
-}
-
-/**
  * Implements hook_block_view_alter().
  */
 function demo_block_view_alter(element, block) {
