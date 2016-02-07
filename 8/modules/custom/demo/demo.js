@@ -61,10 +61,6 @@ demo.routing = function() {
 };
 
 /**
- * BLOCKS
- */
-
-/**
  * Defines blocks for demo.
  */
 demo.blocks = function() {
@@ -95,11 +91,6 @@ demo.blocks = function() {
 
   return blocks;
 };
-
-/**
- * PAGES
- */
-
 demo.welcomePage = function() {
   return new Promise(function(ok, err) {
 
@@ -165,36 +156,36 @@ demo.tourPage = function() {
 
     // List out some of DrupalGap's best features and how to get started.
     //if (!demo.outOfTheBoxAndAnonymous()) {
-      element.features = {
-        _markup:
+    element.features = {
+      _markup:
 
-        '<h2>' + dg.t('Tools and Features') + '</h2>' +
-        '<blockquote>' + dg.t('By utilizing familiar coding syntax and concepts from Drupal 8 such as...') + '</blockquote>' +
-        dg.theme('item_list', {
-          _items: [
-            dg.t('Entities / Fields'),
-            dg.t('Modules'),
-            dg.t('Hooks'),
-            dg.t('Themes'),
-            dg.t('Regions'),
-            dg.t('Blocks'),
-            dg.t('Templates'),
-            dg.t('Routes / Custom Pages'),
-            dg.t('Forms API'),
-            dg.t('User Roles / Permissions')
-          ]
-        }) +
-        '<blockquote>' + dg.t('with built in pages, widgets and forms to handle...') + '</blockquote>' +
-        dg.theme('item_list', {
-          _items: [
-            dg.t('User Authentication'),
-            dg.t('Adding / Editing Entities'),
-            dg.t('Displaying Entities / Fields'),
-            dg.t('Rendering Views Result Data')
-          ]
-        }) +
-        '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>'
-      };
+      '<h2>' + dg.t('Tools and Features') + '</h2>' +
+      '<blockquote>' + dg.t('By utilizing familiar coding syntax and concepts from Drupal 8 such as...') + '</blockquote>' +
+      dg.theme('item_list', {
+        _items: [
+          dg.t('Entities / Fields'),
+          dg.t('Modules'),
+          dg.t('Hooks'),
+          dg.t('Themes'),
+          dg.t('Regions'),
+          dg.t('Blocks'),
+          dg.t('Templates'),
+          dg.t('Routes / Custom Pages'),
+          dg.t('Forms API'),
+          dg.t('User Roles / Permissions')
+        ]
+      }) +
+      '<blockquote>' + dg.t('with built in pages, widgets and forms to handle...') + '</blockquote>' +
+      dg.theme('item_list', {
+        _items: [
+          dg.t('User Authentication'),
+          dg.t('Adding / Editing Entities'),
+          dg.t('Displaying Entities / Fields'),
+          dg.t('Rendering Views Result Data')
+        ]
+      }) +
+      '<blockquote>' + dg.t('the DrupalGap tool set is dedicated to Drupal 8 application development.') + '</blockquote>'
+    };
     //}
 
     ok(element);
@@ -329,10 +320,6 @@ demo.messagesPage = function() {
 };
 
 /**
- * FORMS
- */
-
-/**
  * The form for switching between the different css framework demos.
  */
 var DemoSwitchForm = function() {
@@ -452,10 +439,6 @@ DemoSayHelloForm.prototype = new dg.Form('DemoSayHelloForm');
 DemoSayHelloForm.constructor = DemoSayHelloForm;
 
 /**
- * HOOKS
- */
-
-/**
  * Implements hook_form_alter().
  */
 function demo_form_alter(form, form_state, form_id) {
@@ -496,11 +479,11 @@ function demo_block_view_alter(element, block) {
       // If it's bootstrap, we can drop the "Home" link (we actually clear the whole menu here, so careful).
       if (dg.config('theme').name == 'burrito') { element.menu._items = []; }
 
-        // Build links for the app's main menu.
+      // Build links for the app's main menu.
       element.menu._items.push(
-        dg.l(dg.t('Map'), 'map'),
-        dg.l(dg.t('Messages'), 'messages'),
-        dg.l(dg.t('Tour'), 'tour')
+          dg.l(dg.t('Map'), 'map'),
+          dg.l(dg.t('Messages'), 'messages'),
+          dg.l(dg.t('Tour'), 'tour')
       );
 
       break;
@@ -580,10 +563,6 @@ function demo_entity_view(element, entity) {
 }
 
 /**
- * HELPERS
- */
-
-/**
  * Returns the current css framework.
  * @returns {String}
  */
@@ -605,28 +584,16 @@ demo.switchFramework = function(select) {
   var current = window.location.toString();
   switch (select.value) {
     case 'out_of_the_box':
-      if (current.indexOf('foundation') != -1) {
-        current = current.replace('foundation/', '');
-      }
-      else if (current.indexOf('bootstrap') != -1) {
-        current = current.replace('bootstrap/', '');
-      }
+      if (current.indexOf('foundation') != -1) { current = current.replace('foundation/', ''); }
+      else if (current.indexOf('bootstrap') != -1) { current = current.replace('bootstrap/', ''); }
       break;
     case 'bootstrap':
-      if (current.indexOf('foundation') != -1) {
-        current = current.replace('foundation', 'bootstrap');
-      }
-      else {
-        current = current.replace('8/', '8/bootstrap');
-      }
+      if (current.indexOf('foundation') != -1) { current = current.replace('foundation', 'bootstrap'); }
+      else { current = current.replace('8/', '8/bootstrap'); }
       break;
     case 'foundation':
-      if (current.indexOf('bootstrap') != -1) {
-        current = current.replace('bootstrap', 'foundation');
-      }
-      else {
-        current = current.replace('8/', '8/foundation');
-      }
+      if (current.indexOf('bootstrap') != -1) { current = current.replace('bootstrap', 'foundation'); }
+      else { current = current.replace('8/', '8/foundation'); }
       break;
   }
   window.location = current;
@@ -804,13 +771,13 @@ demo.showcase = function() {
   var msg = null;
   switch (dg.config('theme').name) {
     case 'burrito': // bootstrap
-      msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension for DrupalGap.', {
+      msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension and theme for DrupalGap.', {
         _bootstrap: dg.l(dg.t('Bootstrap'), 'http://getbootstrap.com/'),
         _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/bootstrap')
       });
       break;
     case 'frank': // foundation
-      msg = dg.t('Instantly add a _foundation front end to your app with a _module extension for DrupalGap.', {
+      msg = dg.t('Instantly add a _foundation front end to your app with a _module extension and theme for DrupalGap.', {
         _foundation: dg.l(dg.t('Foundation'), 'http://foundation.zurb.com/'),
         _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/foundation')
       });
