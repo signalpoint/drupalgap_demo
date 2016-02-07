@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ~/www/demo/8/modules/custom
+rm -rf demo
+mkdir demo
