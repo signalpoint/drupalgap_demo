@@ -20,28 +20,16 @@ demo.switchFramework = function(select) {
   var current = window.location.toString();
   switch (select.value) {
     case 'out_of_the_box':
-      if (current.indexOf('foundation') != -1) {
-        current = current.replace('foundation/', '');
-      }
-      else if (current.indexOf('bootstrap') != -1) {
-        current = current.replace('bootstrap/', '');
-      }
+      if (current.indexOf('foundation') != -1) { current = current.replace('foundation/', ''); }
+      else if (current.indexOf('bootstrap') != -1) { current = current.replace('bootstrap/', ''); }
       break;
     case 'bootstrap':
-      if (current.indexOf('foundation') != -1) {
-        current = current.replace('foundation', 'bootstrap');
-      }
-      else {
-        current = current.replace('8/', '8/bootstrap');
-      }
+      if (current.indexOf('foundation') != -1) { current = current.replace('foundation', 'bootstrap'); }
+      else { current = current.replace('8/', '8/bootstrap'); }
       break;
     case 'foundation':
-      if (current.indexOf('bootstrap') != -1) {
-        current = current.replace('bootstrap', 'foundation');
-      }
-      else {
-        current = current.replace('8/', '8/foundation');
-      }
+      if (current.indexOf('bootstrap') != -1) { current = current.replace('bootstrap', 'foundation'); }
+      else { current = current.replace('8/', '8/foundation'); }
       break;
   }
   window.location = current;
@@ -219,13 +207,13 @@ demo.showcase = function() {
   var msg = null;
   switch (dg.config('theme').name) {
     case 'burrito': // bootstrap
-      msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension for DrupalGap.', {
+      msg = dg.t('Instantly add a _bootstrap front end to your app with a _module extension and theme for DrupalGap.', {
         _bootstrap: dg.l(dg.t('Bootstrap'), 'http://getbootstrap.com/'),
         _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/bootstrap')
       });
       break;
     case 'frank': // foundation
-      msg = dg.t('Instantly add a _foundation front end to your app with a _module extension for DrupalGap.', {
+      msg = dg.t('Instantly add a _foundation front end to your app with a _module extension and theme for DrupalGap.', {
         _foundation: dg.l(dg.t('Foundation'), 'http://foundation.zurb.com/'),
         _module: dg.l(dg.t('module'), 'http://drupalgap.org/project/foundation')
       });
