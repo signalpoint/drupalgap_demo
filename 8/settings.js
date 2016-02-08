@@ -66,8 +66,14 @@ dg.settings.blocks[dg.config('theme').name] = {
     // The user login form's block provided by DrupalGap.
     user_login: {
       _access: function () { return demo.headerBlockAccess(); }
-    }
+    },
 
+    // The user menu provided by DrupalGap.
+    user_menu: {
+      _roles: [
+        { target_id: 'authenticated', visible: true }
+      ]
+    }
 
   },
   content: {
