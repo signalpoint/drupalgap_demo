@@ -63,9 +63,17 @@ dg.settings.blocks[dg.config('theme').name] = {
       _access: function () { return demo.headerBlockAccess(); }
     },
 
-    // The user login form's block provided by DrupalGap.
+    // The user login form provided by DrupalGap.
     user_login: {
-      _access: function () { return demo.headerBlockAccess(); }
+
+      // Only show the user login form once they've made it past the intro page.
+      _access: function () {
+        if (dg.currentUser().isAnonymous()) {
+          return !(demo.outOfTheBox() && dg.isFrontPage() && !demo.cssFrameworkSwitched());
+        }
+        return false;
+      }
+
     },
 
     // The user menu provided by DrupalGap.
