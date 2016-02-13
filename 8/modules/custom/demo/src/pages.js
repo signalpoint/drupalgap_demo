@@ -27,7 +27,7 @@ demo.welcomePage = function() {
           dg.t('to browse other messages'),
           dg.t('with a surprise or two')
         ],
-        _suffix: dg.l(dg.t('Continue the demo'), 'map')
+        _suffix: dg.l(dg.t('Continue the demo'), 'tour')
       };
     }
     else {

@@ -21,7 +21,7 @@ var DemoSwitchForm = function() {
           onchange: "demo.switchFramework(this)"
         }
       };
-      if (demo.outOfTheBox()) { form.css_frameworks._title = dg.t('Mode'); }
+      if (demo.outOfTheBox()) { form.css_frameworks._title = dg.t('Theme'); }
 
       // Add a css class when out of the box.
       if (demo.outOfTheBox()) {

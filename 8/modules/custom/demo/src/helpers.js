@@ -85,23 +85,53 @@ demo.getMapRenderElement = function() {
 };
 
 /**
- * Returns a View render element for displaying recent greetings.
+ * Returns a View render element for displaying recent greetings (messages).
  */
 dg.recentGreetings = function() {
   return {
     _theme: 'view',
     _path: 'articles', // Path to the View in Drupal
     _format: 'div',
+    _weight: 3,
     _attributes: {
       id: 'recent-greetings'
     },
     _row_callback: function(row) {
+
+
+
+      // Prepare the node from the row result.
       var node = dg.Node(row);
+
+      // Grab the date the message was created.
       var d = new Date(node.getCreatedTime() * 1000);
-      return '<h4>' + dg.l(node.getTitle(), 'node/' + node.id()) + ' | ' + d.toDateString() + '</h4>' +
-          '<blockquote>' + node.get('body', 0).value + '</blockquote>';
-    },
-    _weight: 3
+
+      // Build a link to the node.
+      var link = dg.l(node.getTitle(), 'node/' + node.id());
+
+      // Build a header.
+      var html = '<h4>' + link + ' | ' + d.toDateString() + '</h4>';
+
+      // If the user is authenticated (aka the demo user), give them a node edit link.
+      if (dg.currentUser().isAuthenticated()) {
+        var linkOptions = { _attributes: { } };
+        var linkClasses = null;
+        if (demo.isBootstrap()) {
+          linkClasses = ['btn', 'btn-small', 'btn-default', 'pull-right'];
+        }
+        else if (demo.isFoundation()) {
+          linkClasses = ['secondary', 'hollow', 'button', 'float-right'];
+        }
+        if (linkClasses) { linkOptions._attributes.class = linkClasses; }
+        html += dg.l('edit', 'node/' + node.id() + '/edit', linkOptions);
+      }
+
+      // Add the body of the message to output.
+      html += '<blockquote>' + node.get('body', 0).value + '</blockquote>';
+
+      return html;
+
+    }
   };
 };
 
@@ -226,7 +256,12 @@ demo.showcase = function() {
 };
 
 demo.headerBlockAccess = function () {
-  return !(demo.outOfTheBox() && dg.currentUser().isAnonymous() && dg.isFrontPage() && !demo.cssFrameworkSwitched());
+  return !(
+    demo.outOfTheBox() &&
+    dg.currentUser().isAnonymous() &&
+    dg.isFrontPage() &&
+    !demo.cssFrameworkSwitched()
+  );
 };
 
 demo.outOfTheBox = function() { return dg.config('theme').name == 'ava'; };

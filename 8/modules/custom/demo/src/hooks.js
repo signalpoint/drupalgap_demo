@@ -3,7 +3,7 @@
  */
 function demo_form_alter(form, form_state, form_id) {
   return new Promise(function(ok, err) {
-    if (form.actions) { form.actions._weight = 999; }
+    //if (form.actions) { form.actions._weight = 999; }
     if (form_id == 'UserLoginForm') {
       form.name._value = 'demo';
       form.pass._value = 'drupalgap2012';
@@ -31,9 +31,9 @@ function demo_block_view_alter(element, block) {
 
       // Build links for the app's main menu.
       element.menu._items.push(
+          dg.l(dg.t('Tour'), 'tour'),
           dg.l(dg.t('Map'), 'map'),
-          dg.l(dg.t('Messages'), 'messages'),
-          dg.l(dg.t('Tour'), 'tour')
+          dg.l(dg.t('Messages'), 'messages')
       );
 
       break;

@@ -16,7 +16,7 @@ demo.blocks = function() {
             element.msg = {
               _theme: 'message',
               _type: 'warning',
-              _message: dg.t('Hey, try switching the mode!')
+              _message: dg.t('Hey, try switching the theme!')
             };
           }
           element.form = { _markup: formHtml };
