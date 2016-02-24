@@ -127,7 +127,8 @@ dg.recentGreetings = function() {
       }
 
       // Add the body of the message to output.
-      html += '<blockquote>' + node.get('body', 0).value + '</blockquote>';
+      var body = typeof node.get('body', 0) !== 'undefined' ? node.get('body', 0).value : '';
+      html += '<blockquote>' + body + '</blockquote>';
 
       return html;
 
