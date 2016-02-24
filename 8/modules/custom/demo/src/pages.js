@@ -76,7 +76,7 @@ demo.tourPage = function() {
           dg.t('Themes'),
           dg.t('Regions'),
           dg.t('Blocks'),
-          dg.t('Templates'),
+          dg.t('Render Elements'),
           dg.t('Routes / Custom Pages'),
           dg.t('Forms API'),
           dg.t('User Roles / Permissions')
