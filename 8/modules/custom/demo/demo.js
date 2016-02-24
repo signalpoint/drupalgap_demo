@@ -170,7 +170,7 @@ demo.tourPage = function() {
           dg.t('Themes'),
           dg.t('Regions'),
           dg.t('Blocks'),
-          dg.t('Templates'),
+          dg.t('Render Elements'),
           dg.t('Routes / Custom Pages'),
           dg.t('Forms API'),
           dg.t('User Roles / Permissions')
@@ -680,7 +680,8 @@ dg.recentGreetings = function() {
       }
 
       // Add the body of the message to output.
-      html += '<blockquote>' + node.get('body', 0).value + '</blockquote>';
+      var body = typeof node.get('body', 0) !== 'undefined' ? node.get('body', 0).value : '';
+      html += '<blockquote>' + body + '</blockquote>';
 
       return html;
 
